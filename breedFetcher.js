@@ -1,7 +1,6 @@
 const request = require("request");
-const readline = require("readline");
-const { send } = require("process");
 
+//const readline = require("readline");
 // const rl = readline.createInterface({
 //   input: process.stdin,
 //   output: process.stdout,
@@ -9,28 +8,25 @@ const { send } = require("process");
 
 // rl.question("What cat do you want to know about?", (answer) => {
 //   const cat = answer;
-//   sendReq(cat);
+//   fetchBreedDescription(cat);
 //   rl.close();
 // });
 
-const userInput = process.argv.slice(2);
-
-const sendReq = (cat) => {
+const fetchBreedDescription = (cat, callback) => {
   request(
     `https://api.thecatapi.com/v1/breeds/search?q=${cat}`,
     function (error, response, body) {
-      if (error) {
-        //Print the error if one occurred
-        console.error("error: you probably didnt choose a real cat");
-      }
-      console.log("statusCode:", response && response.statusCode); // Print the response status code if a response was received
-      //console.log("body:", body); // Print the HTML for the Google homepage.
-
       const data = JSON.parse(body);
-      console.log(data[0].description);
-      process.exit;
+
+      if (error) {
+        callback(error);
+      } else if (data[0]) {
+        callback(null, data[0].description);
+      } else {
+        callback("Not a valid cat name");
+      }
     }
   );
 };
 
-sendReq(userInput);
+module.exports = { fetchBreedDescription };
